@@ -1,0 +1,6 @@
+* Minestuck Datapack Generator
+Accepts comma separated values (csv) from a file or through standard input in the format of
+#+BEGIN_SRC csv
+  modid:itemname,build=20,ruby=4
+#+END_SRC
+It will generate a data directory with all the grist cost json files to put in a datapack
