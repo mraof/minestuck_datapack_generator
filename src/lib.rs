@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     fs::{File, OpenOptions},
     path::Path,
 };
@@ -11,7 +11,7 @@ use walkdir::WalkDir;
 pub struct GristCostRecipe {
     pub priority: Option<i32>,
     pub ingredient: Ingredient,
-    pub grist_cost: HashMap<String, i32>,
+    pub grist_cost: BTreeMap<String, i32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,7 +66,7 @@ impl Default for Pack {
 #[derive(Default, Debug)]
 pub struct Datapack {
     pub mcmeta: MCMeta,
-    pub recipes: HashMap<String, Recipe>,
+    pub recipes: BTreeMap<String, Recipe>,
 }
 
 impl GristCostRecipe {
@@ -122,7 +122,7 @@ impl Datapack {
             Ok(file) => serde_json::from_reader(file).unwrap_or_default(),
             Err(_) => MCMeta::default(),
         };
-        let mut recipes = HashMap::new();
+        let mut recipes = BTreeMap::new();
         let data_path = path.join("data");
         if data_path.is_dir() {
             for dir_entry in WalkDir::new(data_path) {

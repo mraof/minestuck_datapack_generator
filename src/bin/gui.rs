@@ -90,7 +90,7 @@ impl Application for DatapackGui {
                         recipe
                             .grist_cost
                             .iter()
-                            .map(|(grist, amount)| GristField::new(grist, *amount))
+                            .map(|(grist, amount)| GristField::new(grist.strip_prefix("minestuck:").unwrap_or(grist), *amount))
                             .collect(),
                     )),
                     _ => None,
@@ -168,7 +168,7 @@ impl Application for DatapackGui {
                             let grist_cost = cost
                                 .grist
                                 .iter()
-                                .map(|g| (g.name.to_string(), g.amount.unwrap()))
+                                .map(|g| (grist_resource(&g.name), g.amount.unwrap()))
                                 .collect();
                             //Not invalid but probably want to mention anyways
                             let recipe = GristCostRecipe {

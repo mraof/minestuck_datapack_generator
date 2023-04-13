@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::{stdin, BufRead, BufReader};
 
@@ -20,7 +20,7 @@ fn main() {
 
         let mut columns = input.split(',');
         let item = columns.next().unwrap().trim();
-        let costs: Result<HashMap<String, i32>, _> = columns
+        let costs: Result<BTreeMap<String, i32>, _> = columns
             .map(|cost| {
                 if let Some((grist, amount)) = cost.split_once('=') {
                     Ok((grist.to_string(), amount))

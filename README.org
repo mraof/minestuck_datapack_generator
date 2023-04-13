@@ -2,6 +2,8 @@
 ** Graphical Interface
 The ~gui~ program will attempt to parse the datapack in ~datapack/~, if it exists, and will export a valid datapack to ~datapack/~ which you can rename or place the contents of into a zip file for a datapack Minecraft can load
 
+Grist types from Minestuck do not need the ~minestuck:~ prefix, but grist types from addons do need to be prefixed with the id their respective mod
+
 ** Command Line
 ~grist_json~ accepts comma separated values (csv) from a file or through standard input in the format of
 #+BEGIN_SRC csv
