@@ -1,5 +1,9 @@
 * Minestuck Datapack Generator
-Accepts comma separated values (csv) from a file or through standard input in the format of
+** Graphical Interface
+The ~gui~ program will attempt to parse the datapack in ~datapack/~, if it exists, and will export a valid datapack to ~datapack/~ which you can rename or place the contents of into a zip file for a datapack Minecraft can load
+
+** Command Line
+~grist_json~ accepts comma separated values (csv) from a file or through standard input in the format of
 #+BEGIN_SRC csv
   modid:itemname,build=20,ruby=4
 #+END_SRC
