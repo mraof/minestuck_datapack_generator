@@ -1,0 +1,10 @@
+{
+  "type": "minestuck:grist_cost",
+  "priority": 101,
+  "ingredient": {
+    "item": "minecraft:dirt"
+  },
+  "grist_cost": {
+    "minestuck:zillium": 4
+  }
+}
