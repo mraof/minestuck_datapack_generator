@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeMap,
     fs::{File, OpenOptions},
-    path::Path,
+    path::Path, str::FromStr, fmt::Display,
 };
 
 use serde::{Deserialize, Serialize};
@@ -15,16 +15,55 @@ pub struct GristCostRecipe {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CombinationRecipe {
+    pub input1: Ingredient,
+    pub input2: Ingredient,
+    pub mode: CombinationMode,
+    pub output: ResultItem,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum CombinationMode {
+    And,
+    Or,
+}
+
+impl FromStr for CombinationMode {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "and"|"&&" => Ok(CombinationMode::And),
+            "or"|"||" => Ok(CombinationMode::Or),
+            _ => Err(())
+        }
+    }
+}
+
+impl Display for CombinationMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CombinationMode::And => write!(f, "and"),
+            CombinationMode::Or => write!(f, "or")
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum Recipe {
     #[serde(rename = "minestuck:grist_cost")]
     GristCost(GristCostRecipe),
+    #[serde(rename = "minetuck:combination")]
+    Combination(CombinationRecipe),
 }
 
 impl Recipe {
     pub fn is_valid(&self) -> bool {
         match self {
             Recipe::GristCost(recipe) => recipe.is_valid(),
+            Recipe::Combination(recipe) => recipe.is_valid(),
         }
     }
 }
@@ -36,9 +75,21 @@ pub enum Ingredient {
     Tag(String),
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ResultItem {
+    Item(String)
+}
+
 impl From<GristCostRecipe> for Recipe {
     fn from(value: GristCostRecipe) -> Self {
         Recipe::GristCost(value)
+    }
+}
+
+impl From<CombinationRecipe> for Recipe {
+    fn from(value: CombinationRecipe) -> Self {
+        Recipe::Combination(value)
     }
 }
 
@@ -85,6 +136,22 @@ impl GristCostRecipe {
         self.grist_cost
             .keys()
             .all(|g| validate_resource_location(g))
+    }
+}
+
+impl CombinationRecipe {
+    pub fn is_valid(&self) -> bool {
+        match (&self.input1, &self.input2, &self.output) {
+            (Ingredient::Item(in1), Ingredient::Item(in2), ResultItem::Item(out)) => {
+                validate_resource_location(in1)
+                && validate_resource_location(in2)
+                && validate_resource_location(out)
+            },
+            (_, _, _) => {
+                eprintln!("Tags are unsupported");
+                return false;
+            }
+        }
     }
 }
 
@@ -165,8 +232,11 @@ impl Datapack {
             }
         }
         let grist_costs_path = path.join("data/minestuck/recipes/grist_costs");
+        let combination_recipes_path = path.join("data/minestuck/recipes/combination");
         //It'll be confusing why deleting an entry doesn't remove the recipe so let's just start fresh
         let _ = std::fs::remove_dir_all(grist_costs_path);
+        let _ = std::fs::remove_dir_all(combination_recipes_path);
+
         for (location, recipe) in &self.recipes {
             if recipe.is_valid() {
                 let recipe_path = path.join(&format!("{location}.json"));

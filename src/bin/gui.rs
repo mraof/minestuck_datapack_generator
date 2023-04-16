@@ -4,7 +4,7 @@ use iced::{
     Application, Color, Command, Element, Padding, Settings, Theme,
 };
 use minestuck_datapack_generator::{
-    grist_resource, validate_resource_location, Datapack, GristCostRecipe, Ingredient, Recipe,
+    grist_resource, validate_resource_location, Datapack, GristCostRecipe, Ingredient, Recipe, ResultItem,
 };
 
 fn main() -> iced::Result {
@@ -94,6 +94,13 @@ impl Application for DatapackGui {
                             .collect(),
                     )),
                     _ => None,
+                },
+                Recipe::Combination(recipe) => match (&recipe.input1, &recipe.input2, &recipe.output) {
+                    (Ingredient::Item(_), Ingredient::Item(_), ResultItem::Item(_)) => Some(CostEntry::new(
+                        "",
+                        vec![GristField::new("", 0)]
+                    )),
+                    (_, _, _) => None,
                 },
             })
             .collect();
