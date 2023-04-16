@@ -149,7 +149,7 @@ impl CombinationRecipe {
             },
             (_, _, _) => {
                 eprintln!("Tags are unsupported");
-                return false;
+                false
             }
         }
     }

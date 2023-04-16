@@ -18,19 +18,31 @@ fn main() {
     for line in reader.lines() {
         let input = line.unwrap();
 
-        let mut columns = input.split(',');
-        let input1 = columns.next().unwrap().trim();
-        let mode = columns.next().unwrap().trim();
-        let input2 = columns.next().unwrap().trim();
-        let output = columns.next().unwrap().trim();
-
-        let recipe: Recipe = CombinationRecipe {
-            input1: Ingredient::Item(input1.to_string()),
-            input2: Ingredient::Item(input2.to_string()),
-            mode: CombinationMode::from_str(mode).unwrap(),
-            output: ResultItem::Item(output.to_string())
+        let columns: Vec<_> = input.split(',').map(str::trim).collect();
+        if columns.len() < 4 {
+            //Silently ignore blank lines
+            if !(columns.len() == 1 && columns[0].is_empty()) {
+                eprintln!("{input} only has {} fields, needs 4", columns.len());
+            }
+            continue;
         }
-        .into();
+        let input1 = columns[0];
+        let mode = columns[1];
+        let input2 = columns[2];
+        let output = columns[3];
+
+        let recipe: Recipe = if let Ok(mode) = CombinationMode::from_str(mode) {
+            CombinationRecipe {
+                input1: Ingredient::Item(input1.to_string()),
+                input2: Ingredient::Item(input2.to_string()),
+                mode,
+                output: ResultItem::Item(output.to_string())
+            }.into()
+        } else {
+            eprintln!("Invalid mode {mode}");
+            continue;
+        };
+
         if recipe.is_valid() {
             let (mod_id, item_name) = output.split_once(':').unwrap();
             std::fs::create_dir_all(mod_id).unwrap();
